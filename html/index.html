@@ -1,0 +1,31 @@
+<html>
+<title>Test</title>
+<head>
+	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script>
+		var data = {City:'Moscow', Age:25};
+		$.postJSON = function(url, data, success, args) {
+		  args = $.extend({
+		  url: 'http://127.0.0.1/my',
+		  type: 'POST',
+		  data: JSON.stringify(data),
+		  contentType: 'application/json; charset=utf-8',
+		  dataType: 'json',
+		  async: true,
+		  success: success
+		  }, args);
+		  return $.ajax(args);
+		};
+
+		$.postJSON('test/url', data, function(result) {
+		  console.log('result', result);
+		});
+	</script>
+
+</head>
+	<body data-role="page">
+		<button id="mybtn">SendData</button>
+		<p>sdfsdf</p>
+	</body>
+		
+</html>
