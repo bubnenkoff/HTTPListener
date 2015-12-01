@@ -17,6 +17,7 @@ void main()
 
     router.any("*", &accControl);
     router.any("/my", &action);
+    router.any("/stat", &statistic);
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;
@@ -24,16 +25,7 @@ void main()
 
     ParseConfig parseconfig = new ParseConfig();
     db = new DBConnect(parseconfig);
-
-    //string total_count;
-
-    //    auto request_before = db.stmt.executeQuery("select COUNT(*) from " ~ parseconfig.dbname ~ ".mytest");
-    //        while(request_before.next())
-    //        {
-    //            total_count = request_before.getString(1);
-    //            writeln(total_count);
-    //        }
-  
+    getNumberOfQID(); // questionID
 
     writeln("--------sending data---------");
 
@@ -45,6 +37,7 @@ void accControl(HTTPServerRequest req, HTTPServerResponse res)
 {
     res.headers["Access-Control-Allow-Origin"] = "*";
 }
+
 
 
 void action(HTTPServerRequest req, HTTPServerResponse res)
@@ -66,16 +59,44 @@ void action(HTTPServerRequest req, HTTPServerResponse res)
             string _rk = to!string(_k);
             if (_rk.canFind("QID"))
             {
-                //writeln(_k["QID"]);
-                string result = ("INSERT INTO otest.mytest (`QID`, `AID`) VALUES (" ~ to!string(_k["QID"]) ~ "," ~ to!string(_k["AID"]) ~ ");");
-                db.stmt.executeUpdate(result);     
+                try
+                {
+                    string result = ("INSERT INTO otest.mytest (`QID`, `AID`) VALUES (" ~ to!string(_k["QID"]) ~ "," ~ to!string(_k["AID"]) ~ ");");
+                    db.stmt.executeUpdate(result);     
+                }
+
+                catch (Exception e)
+                {
+                    writeln("Can't insert in DB", e.msg);
+                }
             }
-
-            //writeln(_k);
-
 
 
         }
     }
+
+}
+
+//we need to get total number of QID that storage in DB
+void getNumberOfQID()
+{
+    auto rs = db.stmt.executeQuery("SELECT DISTINCT QID FROM otest.mytest");
+    int [] result;
+    while (rs.next())
+    {
+        result ~= to!int(rs.getString(1));
+    }
+    writeln("==> ", result);
+}
+
+void statistic(HTTPServerRequest req, HTTPServerResponse res)
+{
+    auto rs = db.stmt.executeQuery("SELECT AID FROM otest.mytest WHERE QID=1");
+    int [] result;
+    while (rs.next())
+    {
+        result ~= to!int(rs.getString(1));
+    }
+    res.writeBody(to!string(result));
 
 }
