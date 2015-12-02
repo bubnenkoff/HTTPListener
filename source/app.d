@@ -18,6 +18,7 @@ void main()
     router.any("*", &accControl);
     router.any("/my", &action);
     router.any("/stat", &statistic);
+    router.any("/login", &login);
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;
@@ -97,6 +98,32 @@ void statistic(HTTPServerRequest req, HTTPServerResponse res)
     {
         result ~= to!int(rs.getString(1));
     }
+    res.writeBody(to!string(result));
+
+}
+
+
+void login(HTTPServerRequest req, HTTPServerResponse res)
+{
+    auto rs = db.stmt.executeQuery(`SELECT password FROM otest.myusers where user LIKE "%admin%"`);
+    bool isUserExists = false;
+
+    Json request = req.json;
+    writeln(request["password"]);
+
+
+    string result;
+    while (rs.next())
+    {
+        result = rs.getString(1);
+        //hardcoded!!!!
+        if(result == "123")
+            isUserExists = true;
+        else
+            isUserExists = false;
+    }
+    if(isUserExists)
+        writeln("userexists");
     res.writeBody(to!string(result));
 
 }
