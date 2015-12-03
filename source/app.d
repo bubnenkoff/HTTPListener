@@ -9,20 +9,28 @@ import dbconnect;
 
 DBConnect db;
 
+bool isAuthorizated;
+
 void main()
 {
-
+ 
     auto router = new URLRouter;
     router.get("*", serveStaticFiles("D:\\code\\onlineTest\\"));
-
+    
     router.any("*", &accControl);
     router.any("/my", &action);
     router.any("/stat", &statistic);
+    //router.any("/checkAuthorization", &checkAuthorization);
+    router.any("/checkAuthorization", &checkAuthorization);
     router.any("/login", &login);
+    router.any("/foo", &foo);
+
+    bool isAuthorizated = false;
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;
     settings.bindAddresses = ["::", "127.0.0.1"];
+    settings.sessionStore = new MemorySessionStore; // SESSION
 
     ParseConfig parseconfig = new ParseConfig();
     db = new DBConnect(parseconfig);
@@ -39,6 +47,11 @@ void accControl(HTTPServerRequest req, HTTPServerResponse res)
     res.headers["Access-Control-Allow-Origin"] = "*";
 }
 
+void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
+{
+    res.writeBody("onSite"); // autorizated
+    //res.writeBody("Hello, World!", "text/plain");
+}
 
 
 void action(HTTPServerRequest req, HTTPServerResponse res)
@@ -103,27 +116,50 @@ void statistic(HTTPServerRequest req, HTTPServerResponse res)
 }
 
 
+void foo(HTTPServerRequest req, HTTPServerResponse res)
+{
+    if (req.session)
+        res.writeBody("Hello, World!", "text/plain");
+}
+
+
 void login(HTTPServerRequest req, HTTPServerResponse res)
 {
-    auto rs = db.stmt.executeQuery(`SELECT password FROM otest.myusers where user LIKE "%admin%"`);
-    bool isUserExists = false;
-
     Json request = req.json;
-    writeln(request["password"]);
+    //writeln(to!string(request["username"]));
 
 
-    string result;
+    string query_string = (`SELECT user, password FROM otest.myusers where user LIKE ` ~ `'%` ~ request["username"].to!string ~ `%';`);
+    auto rs = db.stmt.executeQuery(query_string);
+
+    string dbpassword;
+    string dbuser;
+    
     while (rs.next())
     {
-        result = rs.getString(1);
-        //hardcoded!!!!
-        if(result == "123")
-            isUserExists = true;
+        dbuser = rs.getString(1);
+        dbpassword = rs.getString(2);
+        //writeln("dbpassword: ", dbpassword);
+        //writeln("req pass: ", request["password"].to!string);
+
+        if (dbpassword == request["password"].to!string && dbuser == request["username"].to!string)
+        {
+            writeln("you are admin");
+            auto session = res.startSession();
+            isAuthorizated = true;
+        }
+
         else
-            isUserExists = false;
+        {
+            writeln("you are not admin");
+            isAuthorizated = false;
+        }
+
     }
-    if(isUserExists)
-        writeln("userexists");
-    res.writeBody(to!string(result));
+
+
+
+    res.writeBody("result");
+
 
 }
