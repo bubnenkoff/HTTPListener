@@ -39,9 +39,6 @@ void main()
     router.any("*", &accControl);
     router.any("/my", &action);
     router.any("/stat", &statistic);
-    router.any("/stat1", &statistic1);
-    router.any("/stat2", &statistic2);
-    router.any("/stat3", &statistic3);
 
     router.any("/checkAuthorization", &checkAuthorization);
     router.any("/login", &login);
@@ -50,6 +47,7 @@ void main()
     router.any("/test", &test);    
 
     bool isAuthorizated = false;
+    bool isAdmin = false;
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;
@@ -84,13 +82,17 @@ void adminpage(HTTPServerRequest req, HTTPServerResponse res)
 
 }
 
+
+
 void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
 {
     //if user already on site
     if (req.session)
     {
         res.writeBody("onSite"); // autorizated
-           res.redirect("/");
+        res.redirect("/");
+
+        writeln("Is Admin --> ", isAdmin);
     }
 
     else
@@ -236,84 +238,6 @@ void statistic(HTTPServerRequest req, HTTPServerResponse res)
 }
 
 
-//=============HACK
- void statistic1(HTTPServerRequest req, HTTPServerResponse res)
-{
-   string result_json;
-
-    foreach(QID; getNumberOfQID) // now we need iterate all QID
-    {
-
-        string query_string = "SELECT `AID`, COUNT(*) AS cnt FROM otest.mytest WHERE `AID` IS NOT NULL AND `AID` != 100 AND `QID` = 1 GROUP BY `AID` ORDER BY `AID` ASC ;";
-        auto rs = db.stmt.executeQuery(query_string);
-        int [] result;
-        while (rs.next())
-        {
-            result ~= to!int(rs.getString(2));
-            //writeln(result);
-        }
-
-        res.writeBody(to!string(result));
-        
-    } 
-
-}
-
- void statistic2(HTTPServerRequest req, HTTPServerResponse res)
-{
-   string result_json;
-
-    foreach(QID; getNumberOfQID) // now we need iterate all QID
-    {
-
-        string query_string = "SELECT `AID`, COUNT(*) AS cnt FROM otest.mytest WHERE `AID` IS NOT NULL AND `AID` != 100 AND `QID` = 2 GROUP BY `AID` ORDER BY `AID` ASC ;";
-        auto rs = db.stmt.executeQuery(query_string);
-        int [] result;
-        while (rs.next())
-        {
-            result ~= to!int(rs.getString(2));
-            //writeln(result);
-        }
-
-        res.writeBody(to!string(result));
-        
-    } 
-
-}
-
-
-
- void statistic3(HTTPServerRequest req, HTTPServerResponse res) // AREA
-{
-   string result_json;
-
-    foreach(QID; getNumberOfQID) // now we need iterate all QID
-    {
-
-        //string query_string_min_area = "SELECT `MinArea`, COUNT(*) AS cnt FROM otest.mytest WHERE `QID` = 100 GROUP BY `MinArea` ORDER BY `AID` ASC;";
-        string query = "SELECT `MinArea`, `MaxArea`, COUNT(*) AS cnt FROM otest.mytest WHERE `QID` = 100 GROUP BY `MinArea` ORDER BY `AID` ASC;";
-        auto rs = db.stmt.executeQuery(query);
-        string result_string_area;
-        string result_min_cnt; //count
-        while (rs.next())
-        {
-            result_string_area ~=  "[" ~ rs.getString(1) ~ "," ~ rs.getString(2) ~ "],";
-            //result_min_cnt ~= rs.getString(2);
-            //writeln(result);
-        }
-
-
-       string result_string_area1 = (result_string_area).replace("],]","]]");
-        writeln(result_string_area1);
-
-        res.writeBody(to!string(result_string_area1));
-        
-    } 
-
-}
-
-
-//==========================
 
 
 void test(HTTPServerRequest req, HTTPServerResponse res)
@@ -322,6 +246,10 @@ void test(HTTPServerRequest req, HTTPServerResponse res)
         res.writeBody("Hello, World!", "text/plain");
 }
 
+bool isAdmin()
+{
+    return false;
+}
 
 void login(HTTPServerRequest req, HTTPServerResponse res)
 {
@@ -334,7 +262,6 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
         string query_string = (`SELECT user, password FROM otest.myusers where user LIKE ` ~ `'%` ~ request["username"].to!string ~ `%';`);
         auto rs = db.stmt.executeQuery(query_string);
     
-
         string dbpassword;
         string dbuser;
         
@@ -345,17 +272,23 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
             //writeln("dbpassword: ", dbpassword);
             //writeln("req pass: ", request["password"].to!string);
 
-            if (dbpassword == request["password"].to!string && dbuser == request["username"].to!string)
+            if (dbuser == request["username"].to!string && dbpassword == request["password"].to!string)
             {
-                writeln("you are admin");
-                 //if no sesstion start one
+                writeln("User exist in DB: ", request["username"].to!string);
+                 //if no session start one
                  if (!req.session) 
                     {
                         req.session = res.startSession();
                         res.redirect("/");
 
+                        if(dbuser == "admin") // admin name hardcoded
+                        {
+                            isAdmin = true;
+                        }
+
+                        isAuthorizated = true;
                     }
-                isAuthorizated = true;
+
             }
 
             else
@@ -378,7 +311,6 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
     }
 
    
-
 
 }
 

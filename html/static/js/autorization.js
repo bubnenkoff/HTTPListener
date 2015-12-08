@@ -4,7 +4,8 @@ app.directive('ngAuthorization', function() {
         scope: true,
         controller: function($scope, $http) {
 
-		$scope.showLoginBar = true;
+$scope.showLoginBar = true;
+$scope.isAdmin = false;
 
 
 	// Check if user authorizeted 
