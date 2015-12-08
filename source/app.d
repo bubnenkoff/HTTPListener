@@ -246,12 +246,12 @@ void test(HTTPServerRequest req, HTTPServerResponse res)
         res.writeBody("Hello, World!", "text/plain");
 }
 
-bool isAdmin()
+bool checkUserGroup()
 {
     return false;
 }
 
-void login(HTTPServerRequest req, HTTPServerResponse res)
+string login(HTTPServerRequest req, HTTPServerResponse res)
 {
     Json request = req.json;
     //writeln(to!string(request["username"]));
@@ -283,12 +283,14 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
 
                         if(dbuser == "admin") // admin name hardcoded
                         {
-                            isAdmin = true;
+                            return "admin";
                         }
 
                         isAuthorizated = true;
-                    }
 
+
+                    }
+                 return "user";       
             }
 
             else
