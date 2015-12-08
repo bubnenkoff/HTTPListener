@@ -1,0 +1,95 @@
+@import "bootstrap.css";
+@import "angular-slider.css";
+
+.user-answer-block {
+	text-align: inherit;
+	margin-left: 20vh;
+	overflow: hidden;
+
+}
+
+
+.user-answer-postition {
+	
+	/*margin-left: 20vh;*/
+	/*margin-right: 5px;
+	margin-bottom: 5px;*/
+	padding: 5px;
+}
+
+
+.sub-user-answer-postition {
+	
+	/*margin-left: 20vh;*/
+	/*margin-right: 5px;
+	margin-bottom: 5px;*/
+	padding: 5px;
+	margin-left: 20px;
+}
+
+.selected-class
+{
+	position: absolute;
+}
+
+.big-checkbox {width: 21px; height: 21px;}
+
+h1
+{
+	text-align: center;
+}
+
+h4
+{
+	display: inline;
+}
+
+.mycontainer
+{
+ display: inline-block;
+}
+
+
+/* sider */
+
+.ui-slider-tick {
+  position: absolute;
+  background-color: #aaa;
+  width: 2px;
+  height: 8px;
+  top: 16px;
+}
+
+.ui-slider {
+  position: relative;
+}
+
+.myslider {
+  margin-right: 10%;
+  margin-left: 1%;
+}
+
+.ui-slider-out-of-bounds {
+  position: absolute;
+  background-color: #EEE;
+  height: 100%;
+}
+
+
+.logo{
+  width: 100%;
+  vertical-align: middle;
+  margin: 0 40px;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+}
+
+
+.footer{
+  width: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+}

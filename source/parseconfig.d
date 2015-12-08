@@ -16,6 +16,7 @@ class ParseConfig
 	string dbpass;
 	string dbhost;
 	string dbport;
+	string HTMLroot;
 
 
 this()
@@ -39,6 +40,7 @@ this()
 				dbpass = config["dbpass"].toStr;
 				dbhost = config["dbhost"].toStr;
 				dbport = config["dbport"].toStr;
+				HTMLroot = config["HTMLroot"].toStr;
 			}
 			catch (Exception msg)
 			{
