@@ -9,10 +9,9 @@ import std.file;
 import ddbc.all;
 import parseconfig;
 import dbconnect;
+import users;
 
 DBConnect db;
-
-bool isAuthorizated;
 
 //DateTime currentdt;
 //static this()
@@ -69,6 +68,9 @@ void accControl(HTTPServerRequest req, HTTPServerResponse res)
     res.headers["Access-Control-Allow-Origin"] = "*";
 }
 
+AuthInfo _auth;
+
+
 void adminpage(HTTPServerRequest req, HTTPServerResponse res)
 {
     if (req.session)
@@ -83,7 +85,6 @@ void adminpage(HTTPServerRequest req, HTTPServerResponse res)
 }
 
 
-
 void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
 {
     //if user already on site
@@ -92,7 +93,15 @@ void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
         res.writeBody("onSite"); // autorizated
         res.redirect("/");
 
-        writeln("Is Admin --> ", isAdmin);
+        if(_auth.isAuthorizated)
+        {
+            writeln("USER Session: ", req.session.get!string("username"));
+        }
+        if(_auth.isAdmin)
+        {
+            writeln("USER Session: ", req.session.get!string("username"));
+        }
+        
     }
 
     else
@@ -239,19 +248,14 @@ void statistic(HTTPServerRequest req, HTTPServerResponse res)
 
 
 
-
 void test(HTTPServerRequest req, HTTPServerResponse res)
 {
     if (req.session)
         res.writeBody("Hello, World!", "text/plain");
 }
 
-bool checkUserGroup()
-{
-    return false;
-}
 
-string login(HTTPServerRequest req, HTTPServerResponse res)
+void login(HTTPServerRequest req, HTTPServerResponse res)
 {
     Json request = req.json;
     //writeln(to!string(request["username"]));
@@ -283,20 +287,24 @@ string login(HTTPServerRequest req, HTTPServerResponse res)
 
                         if(dbuser == "admin") // admin name hardcoded
                         {
-                            return "admin";
+                           _auth.isAuthorizated = true; 
+                           _auth.isAdmin = true; 
+                           //req.session.set("username", "admin"); //ditto
+                           req.session.set!string("username", "admin");
+                        }
+                        else
+                        {
+                            req.session.set("username", dbuser); //set current username in parameter of session name
                         }
 
-                        isAuthorizated = true;
-
-
                     }
-                 return "user";       
+                   
             }
 
             else
             {
                 writeln("you are not admin");
-                isAuthorizated = false;
+                _auth.isAuthorizated = false;
                 //res.redirect("/");
             }
 
