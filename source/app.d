@@ -90,23 +90,33 @@ void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
     //if user already on site
     if (req.session)
     {
-        res.writeBody("onSite"); // autorizated
-        res.redirect("/");
+        logInfo("user already have active session");
+        Json authJsonInfo = Json.emptyObject;
+        if(_auth.isAuthorized) //only user authorizate
+        {
+            // {"isAuthorized: true, isAdmin: true"}
+            authJsonInfo["isAuthorized"] = _auth.isAuthorized;
+            authJsonInfo["username"] = _auth.user.username;
+            if(_auth.isAdmin)
+            {
+                authJsonInfo["isAdmin"] = true;
+                res.writeJsonBody(authJsonInfo);
+            }
 
-        if(_auth.isAuthorizated)
-        {
-            writeln("USER Session: ", req.session.get!string("username"));
+            res.writeJsonBody(authJsonInfo);
+            writeln(to!string(authJsonInfo));
         }
-        if(_auth.isAdmin)
-        {
-            writeln("USER Session: ", req.session.get!string("username"));
-        }
+
         
+
     }
 
     else
+    {
         res.writeVoidBody();
         res.statusCode = 204; // all good nothing to return
+        writeln("User do not have access session");
+    }
 
 }
 
@@ -259,13 +269,11 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
 {
     Json request = req.json;
     //writeln(to!string(request["username"]));
-    writeln("Login section");
-
     try
     {
-        string query_string = (`SELECT user, password FROM otest.myusers where user LIKE ` ~ `'%` ~ request["username"].to!string ~ `%';`);
+        string query_string = (`SELECT user, password FROM otest.myusers where user = ` ~ `'` ~ request["username"].to!string ~ `';`);
         auto rs = db.stmt.executeQuery(query_string);
-    
+
         string dbpassword;
         string dbuser;
         
@@ -273,43 +281,52 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
         {
             dbuser = rs.getString(1);
             dbpassword = rs.getString(2);
-            //writeln("dbpassword: ", dbpassword);
-            //writeln("req pass: ", request["password"].to!string);
 
             if (dbuser == request["username"].to!string && dbpassword == request["password"].to!string)
             {
-                writeln("User exist in DB: ", request["username"].to!string);
-                 //if no session start one
-                 if (!req.session) 
+                 logInfo("DB --> User: %s Password: %s", dbuser, dbpassword);
+                 
+                 if (!req.session) //if no session start one
                     {
                         req.session = res.startSession();
                         res.redirect("/");
 
                         if(dbuser == "admin") // admin name hardcoded
                         {
-                           _auth.isAuthorizated = true; 
+                           _auth.isAuthorized = true; 
                            _auth.isAdmin = true; 
+                           _auth.user.username = "admin"; 
                            //req.session.set("username", "admin"); //ditto
                            req.session.set!string("username", "admin");
+                           logInfo("Admin session for user: %s started", dbuser);
                         }
-                        else
+                        if(dbuser != "admin") // start user session
                         {
                             req.session.set("username", dbuser); //set current username in parameter of session name
+                            _auth.user.username = dbuser; //set field
+                            logInfo("User session for user: %s started", dbuser);
                         }
 
                     }
                    
             }
 
+            if (dbuser == request["username"].to!string && dbpassword != request["password"].to!string)
+            {
+                logWarn("Password for user: %s is incorrect!", dbuser);
+            }
+            writeln("dbuser ---->", dbuser);
+            //if (dbuser != request["username"].to!string) //seems return different types of object
+            if (dbuser is null)
+                logWarn("User: %s do not exists in DB!", dbuser);            
+
             else
             {
-                writeln("you are not admin");
-                _auth.isAuthorizated = false;
-                //res.redirect("/");
+                logInfo("User: %s do not exists in DB", dbuser);
+                _auth.isAuthorized = false;
             }
 
         }
-         res.redirect("/");
 
     }
 

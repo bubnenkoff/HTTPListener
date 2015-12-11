@@ -10,12 +10,19 @@ $scope.isAdmin = false;
 
 	// Check if user authorizeted 
 	$http.get('http://127.0.0.1:8080/checkAuthorization').then(function(response) {
-    	console.log("---->", response.data);
-    	if (response.data == "onSite") // user logged
-      {
-			 $scope.showLoginBar = false;    		
+    	console.log("data ---->", response.data);
+    	console.log("type of --->", typeof(response.data));
+    	// we expect: {"loginName":"user"}
+    	if (response.data["isAuthorized"] == true) // user authorized
+    	{
+			$scope.showLoginBar = false;    		
+			console.log("Login user session: ", response.data["loginName"]);
+			if (response.data["loginName"] == "admin") // user logged
+    		{
+				$scope.isAdmin = true;   					
+    		}
+    	}
 
-      }
 	});		
 
 

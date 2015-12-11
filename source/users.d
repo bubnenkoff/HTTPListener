@@ -3,13 +3,13 @@ module users;
 struct AuthInfo
 {
     User user; //User structure
-    bool isAuthorizated;
+    bool isAuthorized;
     bool isAdmin;
 
     struct User 
 	{
 		int id;
-		string name;
+		string username;
 		string organization;
 		string email;
 	}
