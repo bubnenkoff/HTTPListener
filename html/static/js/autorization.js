@@ -10,18 +10,33 @@ $scope.isAdmin = false;
 
 	// Check if user authorizeted 
 	$http.get('http://127.0.0.1:8080/checkAuthorization').then(function(response) {
-    	console.log("data ---->", response.data);
-    	console.log("type of --->", typeof(response.data));
+    	console.log("Login data from Server: ", response.data);
     	// we expect: {"loginName":"user"}
-    	if (response.data["isAuthorized"] == true) // user authorized
+    	if(response.data["status"] == "success")
     	{
-			$scope.showLoginBar = false;    		
-			console.log("Login user session: ", response.data["loginName"]);
-			if (response.data["loginName"] == "admin") // user logged
-    		{
-				$scope.isAdmin = true;   					
-    		}
-    	}
+	    	if (response.data["isAuthorized"] == true) // user authorized
+	    	{
+				$scope.showLoginBar = false;    		
+				console.log("Login user session: ", response.data["loginName"]);
+				if (response.data["loginName"] == "admin") // user logged
+	    		{
+					$scope.isAdmin = true;   					
+	    		}
+	    		if (response.data["loginName"] != "admin") // if not admin, so user
+	    		{
+					$scope.isAdmin = true;   					
+	    		}
+	    	}
+	    	else
+	    		console.log("Wrong Auth data!");
+	    }
+
+	    if(response.data["status"] == "fail")
+	    {
+	    	console.log("Unauthorized user");
+	    }
+
+
 
 	});		
 
@@ -40,7 +55,7 @@ $scope.isAdmin = false;
 					  location.reload();
 					})
 
-				console.log(authdata);
+				console.log("Post Request From Login: ", authdata);
 			}
 			
 	  // send logout

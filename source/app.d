@@ -30,6 +30,7 @@ static this()
 
 void main()
 {
+  
     auto router = new URLRouter;
     router.get("/", serveStaticFiles(roothtml ~ "pages\\"));    
     router.get("*", serveStaticFiles(roothtml ~ "static\\"));
@@ -54,6 +55,7 @@ void main()
     settings.sessionStore = new MemorySessionStore; // SESSION
 
     ParseConfig parseconfig = new ParseConfig();
+    writeln("\nHOST: ", parseconfig.dbhost);
     db = new DBConnect(parseconfig);
     getNumberOfQID(); // questionID
 
@@ -87,19 +89,21 @@ void adminpage(HTTPServerRequest req, HTTPServerResponse res)
 
 void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
 {
+    logInfo("-----checkAuthorization START-----");
+    Json authJsonInfo = Json.emptyObject; // Empty JSON object
     //if user already on site
     if (req.session)
     {
         logInfo("user already have active session");
-        Json authJsonInfo = Json.emptyObject;
         if(_auth.isAuthorized) //only user authorizate
         {
-            // {"isAuthorized: true, isAdmin: true"}
+            // Set User information
             authJsonInfo["isAuthorized"] = _auth.isAuthorized;
             authJsonInfo["username"] = _auth.user.username;
+            authJsonInfo["status"] = "success";
             if(_auth.isAdmin)
             {
-                authJsonInfo["isAdmin"] = true;
+                authJsonInfo["isAdmin"] = true; // set isAdminField
                 res.writeJsonBody(authJsonInfo);
             }
 
@@ -107,16 +111,15 @@ void checkAuthorization(HTTPServerRequest req, HTTPServerResponse res)
             writeln(to!string(authJsonInfo));
         }
 
-        
-
     }
-
+    // Login infor we should check only with /login here
     else
     {
-        res.writeVoidBody();
-        res.statusCode = 204; // all good nothing to return
-        writeln("User do not have access session");
+        authJsonInfo["status"] = "fail"; // unauthorized user
+        res.writeJsonBody(authJsonInfo);
     }
+    logInfo("-----checkAuthorization END-------");
+
 
 }
 
@@ -276,56 +279,105 @@ void login(HTTPServerRequest req, HTTPServerResponse res)
 
         string dbpassword;
         string dbuser;
-        
-        while (rs.next())
+
+        Json answerJSON = Json.emptyObject; // response
+
+        //writeln("rs.next() --> ", rs.next());
+        /*
+        if(!rs.next()) // user do not exists in DB
         {
+            answerJSON["status"] = "userDoNotExists"; // user exists in DB, password NO
+            answerJSON["isAuthorized"] = false;
+            logInfo("-------------------------------------------------------------------------------");
+            logInfo(answerJSON.toString);
+            logInfo("-------------------------------------------------------------------------------");                              
+            logWarn("User: %s DO NOT exists in DB!", request["username"]); //getting username from request    
+        }   
+        writeln(query_string);      
+        */
+        // ISSUE: return false if DB have ONE element with same name!
+        if (rs.next()) //work only if user exists in DB
+        {
+            writeln("we are here");
             dbuser = rs.getString(1);
-            dbpassword = rs.getString(2);
+            dbpassword = rs.getString(2);    
+            
+            if (dbuser == request["username"].to!string && dbpassword != request["password"].to!string)
+            {
+                ////////IF WRONG PASSWORD///////////
+                    answerJSON["status"] = "wrongPassord"; // user exists in DB, password NO
+                    answerJSON["isAuthorized"] = false;
+                    logInfo("-------------------------------------------------------------------------------");
+                    logInfo(answerJSON.toString);
+                    logInfo("-------------------------------------------------------------------------------");                              
+                    logWarn("WRONG password for USER: %s", request["username"]); //getting username from request    
+            }
+
 
             if (dbuser == request["username"].to!string && dbpassword == request["password"].to!string)
             {
-                 logInfo("DB --> User: %s Password: %s", dbuser, dbpassword);
+                ////////ALL RIGHT///////////
+                 logInfo("DB --> DBUser: %s DBPassword: %s", dbuser, dbpassword);
                  
                  if (!req.session) //if no session start one
                     {
                         req.session = res.startSession();
-                        res.redirect("/");
-
+                        /* we should set this fields: 
+                            _auth.isAdmin 
+                            _auth.user.username 
+                           to get /checkAuthorization work! */
+                        _auth.isAuthorized = true; 
                         if(dbuser == "admin") // admin name hardcoded
                         {
-                           _auth.isAuthorized = true; 
                            _auth.isAdmin = true; 
                            _auth.user.username = "admin"; 
                            //req.session.set("username", "admin"); //ditto
                            req.session.set!string("username", "admin");
+
+                           answerJSON["status"] = "success";
+                           answerJSON["isAuthorized"] = true;
+                           answerJSON["username"] = dbuser; // admin!
+                           answerJSON["isAdmin"] = true;
+
+                           res.writeJsonBody(answerJSON);
+                           logInfo("-------------------------------------------------------------------------------");
+                           logInfo(answerJSON.toString);
+                           logInfo("-------------------------------------------------------------------------------");
                            logInfo("Admin session for user: %s started", dbuser);
                         }
                         if(dbuser != "admin") // start user session
                         {
                             req.session.set("username", dbuser); //set current username in parameter of session name
                             _auth.user.username = dbuser; //set field
-                            logInfo("User session for user: %s started", dbuser);
+
+                           answerJSON["status"] = "success";
+                           answerJSON["isAuthorized"] = true;
+                           answerJSON["username"] = dbuser; // admin!
+                           answerJSON["isAdmin"] = false;
+
+                           res.writeJsonBody(answerJSON);
+                           logInfo("-------------------------------------------------------------------------------");
+                           logInfo(answerJSON.toString);
+                           logInfo("-------------------------------------------------------------------------------");
+                           logInfo("User session for user: %s started", dbuser);
                         }
 
                     }
                    
             }
 
-            if (dbuser == request["username"].to!string && dbpassword != request["password"].to!string)
-            {
-                logWarn("Password for user: %s is incorrect!", dbuser);
-            }
-            writeln("dbuser ---->", dbuser);
-            //if (dbuser != request["username"].to!string) //seems return different types of object
-            if (dbuser is null)
-                logWarn("User: %s do not exists in DB!", dbuser);            
+           
+        }
 
-            else
-            {
-                logInfo("User: %s do not exists in DB", dbuser);
-                _auth.isAuthorized = false;
-            }
-
+        else
+        {
+            logInfo("User: %s do not exists in DB", dbuser);
+            answerJSON["status"] = "unknownUserName"; // user exists in DB, password NO
+            answerJSON["isAuthorized"] = false;
+            logInfo("-------------------------------------------------------------------------------");
+            logInfo(answerJSON.toString);
+            logInfo("-------------------------------------------------------------------------------");                              
+            logWarn("User %s DO NOT exist in DB", request["username"]); //getting username from request    
         }
 
     }
