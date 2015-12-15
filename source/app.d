@@ -32,7 +32,7 @@ void main()
 {
   
     auto router = new URLRouter;
-    router.get("/", serveStaticFiles(roothtml ~ "pages\\"));    
+    router.get("/*", serveStaticFiles(roothtml ~ "pages\\"));    
     router.get("*", serveStaticFiles(roothtml ~ "static\\"));
     router.get("/admin/*", &adminpage);
     

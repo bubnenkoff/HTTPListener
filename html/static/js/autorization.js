@@ -1,10 +1,18 @@
+app.directive('ngAuthMenu', function() {
+    return {
+        templateUrl: 'template/auth-menu.html',
+        scope: true,
+        controller: function($scope) {},
+        link: function($scope, $element, attrs) {}
+    }
+});
+
 app.directive('ngAuthorization', function() {
     return {
-     
         scope: true,
         controller: function($scope, $http) {
 
-$scope.showLoginBar = true;
+$scope.isAuthorized = false;
 $scope.isAdmin = false;
 
 
@@ -16,7 +24,7 @@ $scope.isAdmin = false;
     	{
 	    	if (response.data["isAuthorized"] == true) // user authorized
 	    	{
-				$scope.showLoginBar = false;    		
+				$scope.isAuthorized = true;    		
 				console.log("Login user session: ", response.data["loginName"]);
 				if (response.data["loginName"] == "admin") // user logged
 	    		{
@@ -24,7 +32,7 @@ $scope.isAdmin = false;
 	    		}
 	    		if (response.data["loginName"] != "admin") // if not admin, so user
 	    		{
-					$scope.isAdmin = true;   					
+					//ADD 					
 	    		}
 	    	}
 	    	else

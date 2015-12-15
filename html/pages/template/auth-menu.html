@@ -1,0 +1,20 @@
+ <div ng-show="!isAuthorized">
+      <form class="form-inline">
+          <div class="form-group">
+            <label class="sr-only" for="UserName">User name</label>
+            <input type="username" ng-model="username" class="form-control" id="UserName" placeholder="username">
+          </div>
+          <div class="form-group">
+            <label class="sr-only" for="Password">Password</label>
+            <input type="password" ng-model="password" class="form-control" id="Password" placeholder="Password">
+          </div>
+        <button type="submit" class="btn btn-default" ng-click="sendLoginInfo()">Войти</button>
+      </form>
+  </div>
+
+  <div ng-show="isAuthorized">
+    <form class="form-inline">
+      <a href="/admin/stat.html"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">Статистика</button></a>
+      <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
+    </form>
+</div>

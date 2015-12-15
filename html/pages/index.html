@@ -1,69 +1,40 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Online Test</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
+  <head>
+    <title>Online Test</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
     <script src="http://cdn.zingchart.com/angular/zingchart-angularjs.js"></script>
     <script src="http://cdn.zingchart.com/zingchart.min.js"></script>
-		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="js/angular-slider.js"></script>
-		<script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
     <script type="text/javascript" src="js/questions.js"></script>
     <script type="text/javascript" src="js/autorization.js"></script>
-
-
-		<link rel="stylesheet" type="text/css" href="css/common.css">
-		<meta charset="utf-8">
-	</head>
-	<body ng-app="myApp">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <meta charset="utf-8">
+  </head>
+  <body ng-app="myApp">
     <div ng-controller="TestQuestions">
-
-  <div ng-authorization>
-    <div style="text-align: center;" >
-      <div class="mycontainer">
-        <div class="center-block">
-          <div class="row">
-            <div class="col-sm-12"><img src="imgs/top1.jpg"></div>
-            <div class="row">
-              <div class="pull-right"><div class="navbar-text">
-
-              
-                <div ng-show="showLoginBar">
-                     <form class="form-inline">
-                        <div class="form-group">
-                          <label class="sr-only" for="UserName">User name</label>
-                          <input type="username" ng-model="username" class="form-control" id="UserName" placeholder="username">
-                        </div>
-                        <div class="form-group">
-                          <label class="sr-only" for="Password">Password</label>
-                          <input type="password" ng-model="password" class="form-control" id="Password" placeholder="Password">
-                        </div>
-                        <button type="submit" class="btn btn-default" ng-click="sendLoginInfo()">Войти</button>
-                    </form>
-                </div>
-                
-                 <div ng-show="!showLoginBar"> <!-- if we are not logined -->
-                     <form class="form-inline">
-                        <a href="/admin/stat.html"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">Статистика</button></a>
-                        <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
-                    </form>
-                </div>      
-
-
-              </div></div>
+      <div ng-authorization>
+        <div style="text-align: center;" >
+          <div class="mycontainer">
+            <div class="center-block">
+              <div class="row">
+                <div class="col-sm-12"><img src="imgs/top1.jpg"></div>
+                <div class="row">
+                    <div class="pull-right"><div class="navbar-text">
+                      <div data-ng-auth-menu></div>
+                     </div>
+              </div>
             </div>
           </div>
-
           <div>
-          <div class="row">
-            <div class="col-sm-1">
-              
-            </div>
-            <div class="col-sm-11">
-              
-
-                <div ng-show="!testFinished">
-                  <div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                <div ng-show="!testFinished" >
+                  <div ng-show="isAuthorized">
                     <div ng-repeat="question in questions">
                       <div ng-show="question.isEnabled" class="text-left">
                         <h3>{{ question.question }}</h3>
@@ -73,63 +44,53 @@
                           ng-disabled="answer.isDisabled"
                           ng-click="setChoice(answer, question)">
                           <h4>{{ answer.answer }}</h4>
-                         
+                          
                           <div ng-show=" {{answer.id }} === 6 && showTextBox_1"> <!-- div for text-box -->
-                             <div >
-                              <input type="text" style="width:50%;" class="form-control" placeholder="Введите текст" ng-model="myModel.textboxValue_1"/>
-                             </div>
-                          </div> 
-
-                          <div ng-show="answer.isSelected">
-                            <div ng-repeat="suba in answer['subanswers']" class="sub-user-answer-postition">
-                              <input type="checkbox" class="big-checkbox"
-                              ng-class="{'btn-primary': suba.isSelected}"
-                              ng-disabled="suba.isDisabled"
-                              ng-click="setSubChoice(question, answer, suba)">
-                              <h4>{{suba.subanswer}}</h4>
-                              
-                            </div>
+                          <div >
+                            <input type="text" style="width:50%;" class="form-control" placeholder="Введите текст" ng-model="myModel.textboxValue_1"/>
                           </div>
                         </div>
-                        <hr>
+                        <div ng-show="answer.isSelected">
+                          <div ng-repeat="suba in answer['subanswers']" class="sub-user-answer-postition">
+                            <input type="checkbox" class="big-checkbox"
+                            ng-class="{'btn-primary': suba.isSelected}"
+                            ng-disabled="suba.isDisabled"
+                            ng-click="setSubChoice(question, answer, suba)">
+                            <h4>{{suba.subanswer}}</h4>
+                            
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="text-left">
-                      <h3>Площадь изучаемой территории</h3>
-                      <h4>Минимальная: {{minArea}} км&sup2;</h4> <br>
-                      <h4>Максимальная: {{maxArea}} км&sup2;</h4>
-                      <!-- <slider floor="100" ceiling="1000" step="1" precision="2" ng-model="cost"></slider> -->
-                      <div class="myslider"><slider floor="0" ceiling="100" ng-model-low="minArea" ng-model-high="maxArea"></slider></div>
-                      <!--  -->
-                      <button class="btn btn-default btn-lg" ng-disabled="clicked_items <= 2" ng-click="calculateResult()">Отправить</button>
-                      <p></p>
+                      <hr>
                     </div>
                   </div>
+                  <div class="text-left">
+                    <h3>Площадь изучаемой территории</h3>
+                    <h4>Минимальная: {{minArea}} км&sup2;</h4> <br>
+                    <h4>Максимальная: {{maxArea}} км&sup2;</h4>
+                    <!-- <slider floor="100" ceiling="1000" step="1" precision="2" ng-model="cost"></slider> -->
+                    <div class="myslider"><slider floor="0" ceiling="100" ng-model-low="minArea" ng-model-high="maxArea"></slider></div>
+                    <!--  -->
+                    <button class="btn btn-default btn-lg" ng-disabled="clicked_items <= 2" ng-click="calculateResult()">Отправить</button>
+                    <p></p>
+                  </div>
+                </div>
               </div>
-
-
+            </div>
           </div>
-
+          <div ng-show="testFinished" style="height:650px; margin-top: 100px;">
+            <div class="text-center">
+              <h2>Спасибо</h2>
+              <h3>Тест завершен</h3>
+            </div>
+          </div>
+          <div class="footer">
+            <img src="imgs/bottom.jpg">
+            <!-- <p class="navbar-text pull-center">НЦ ОМЗ</p> -->
+          </div>
         </div>
-
-
-            <div ng-show="testFinished" style="height:650px; margin-top: 100px;">
-               <div class="text-center">
-                 <h2>Спасибо</h2>
-                 <h3>Тест завершен</h3>
-               </div>   
-             </div>
-
-            <div class="footer">
-    <img src="imgs/bottom.jpg">
-  <!-- <p class="navbar-text pull-center">НЦ ОМЗ</p> -->
- </div>
-
       </div>
     </div>
   </div>
-</div>
-
-
-	</body>
+</body>
 </html>
