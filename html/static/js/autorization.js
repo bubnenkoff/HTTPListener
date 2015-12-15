@@ -1,15 +1,16 @@
+// app.directive('ngAuthMenu', function() {
+//     return {
+//         templateUrl: 'template/auth-menu.html',
+//         scope: true,
+//         controller: function($scope) {},
+//         link: function($scope, $element, attrs) {}
+//     }
+// });
+
 app.directive('ngAuthMenu', function() {
     return {
+        scope: true,
         templateUrl: 'template/auth-menu.html',
-        scope: true,
-        controller: function($scope) {},
-        link: function($scope, $element, attrs) {}
-    }
-});
-
-app.directive('ngAuthorization', function() {
-    return {
-        scope: true,
         controller: function($scope, $http) {
 
 $scope.isAuthorized = false;
