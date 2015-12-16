@@ -1,5 +1,5 @@
 <div ng-show="!testFinished" >
-      <div ng-show="isAuthorized">
+      <div ng-show="$root.isAuthorized">
         <div ng-repeat="question in questions">
           <div ng-show="question.isEnabled" class="text-left">
             <h3>{{ question.question }}</h3>
