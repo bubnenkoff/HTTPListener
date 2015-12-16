@@ -3,7 +3,7 @@ app.directive('ngQuestionList', function()
     return {
       templateUrl: 'template/question-list.html',
       scope: true,
-      controller: 'TestQuestion',
+      controller: 'TestQuestions',
       link: function($scope, $element, attrs) {}
     }
   });
