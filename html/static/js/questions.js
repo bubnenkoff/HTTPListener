@@ -191,6 +191,7 @@ app.controller("TestQuestions", function($scope, $http) {
 
             //Print Information that test pass passed
             $scope.testFinished = true;
+            console.log("Test is finished status: ", $scope.testFinished);
           }
         });
 

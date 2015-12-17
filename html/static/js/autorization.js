@@ -31,9 +31,9 @@ app.directive('ngAuthMenu', function() {
 	    		{
 					$rootScope.isAdmin = true;   					
 	    		}
-	    		if (response.data["loginName"] != "admin") // if not admin, so user
+	    		if (response.data["loginName"] != "admin") // if not admin
 	    		{
-					//ADD 					
+					$rootScope.isAdmin = false; 					
 	    		}
 	    	}
 	    	else

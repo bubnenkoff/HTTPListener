@@ -9,6 +9,7 @@
     <script src="js/angular-slider.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
     <script type="text/javascript" src="js/questions.js"></script>
+    <script type="text/javascript" src="js/welcome.js"></script>
     <script type="text/javascript" src="js/autorization.js"></script>
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <meta charset="utf-8">
@@ -33,16 +34,26 @@
                 left
               </div>
               <div class="col-sm-11">
-                  <div data-ng-question-list></div>
+                  <div ng-show="$root.isAuthorized">
+                      <div ng-show="!testFinished" >
+                          <div data-ng-question-list></div>
+                       </div>
+                  </div>
+
+                  <div ng-show="!$root.isAuthorized">
+                        <div data-ng-welcome></div>
+                        <p>just for test</p>
+                  </div>
+
               </div>
             </div>
           </div>
-          <div ng-show="testFinished" style="height:650px; margin-top: 100px;">
-            <div class="text-center">
-              <h2>Спасибо</h2>
-              <h3>Тест завершен</h3>
-            </div>
-          </div>
+            <!--  <div ng-show="testFinished" style="height:650px; margin-top: 100px;">
+                <div class="text-center">
+                  <h2>Спасибо</h2>
+                  <h3>Тест завершен</h3>
+                </div>
+              </div> -->
           <div class="footer">
             <img src="imgs/bottom.jpg">
             <!-- <p class="navbar-text pull-center">НЦ ОМЗ</p> -->
