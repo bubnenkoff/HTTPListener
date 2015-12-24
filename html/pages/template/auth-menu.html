@@ -13,8 +13,18 @@
   </div>
 
   <div ng-show="isAuthorized">
-    <form class="form-inline">
-      <a href="/admin/stat.html"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">Статистика</button></a>
-      <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
-    </form>
-</div>
+    <div ng-show="!isAdmin">
+      <form class="form-inline">
+        <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
+      </form>
+    </div>
+
+    <div ng-show="isAdmin">
+      <form class="form-inline">
+        <!-- <a href="/admin/admin.html"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">Пользователи</button></a> -->
+        <a href="/admin/stat.html"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">Статистика</button></a>
+        <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
+      </form>
+    </div>
+
+  </div>

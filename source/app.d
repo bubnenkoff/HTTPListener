@@ -224,39 +224,10 @@ int [] getNumberOfQID()
 
 void statistic(HTTPServerRequest req, HTTPServerResponse res)
 {
-   string result_json;
-
-    foreach(i, QID; getNumberOfQID) // now we need iterate all QID
-    {
-
-        i++;
-        string query_string = "SELECT AID FROM otest.mytest WHERE QID=" ~ to!string(QID);
-        auto rs = db.stmt.executeQuery(query_string);
-        int [] result;
-        while (rs.next())
-        {
-            result ~= to!int(rs.getString(1));
-            //writeln(result);
-        }
-
-        string single_QID = "{" ~ `"` ~ to!string(QID) ~ `":` ~ to!string(result) ~ "}";
-       // writeln(single_QID);
-        result_json ~= single_QID ~ ",";
-        //writeln(result_json);
-        //writeln;
-        
-        string result_json1;
-        result_json1 ~= ("[" ~ result_json ~ "]").replace("},]","}]");
-
-        // _Very_ dirty hack to send JSON array of QID and their result at _last_ iteration! 
-        if((i == getNumberOfQID.length - 1))
-        {
-            writeln(result_json1);
-            res.writeBody(to!string(result_json1));
-        }
-        
-    } 
-
+    writeln("--------stat-from-site--------");
+    writeln(req.json);
+    writeln("--------stat-from-site--------");
+    res.writeVoidBody;
 }
 
 

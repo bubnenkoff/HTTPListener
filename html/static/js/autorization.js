@@ -16,6 +16,11 @@ app.directive('ngAuthMenu', function() {
 	$rootScope.isAuthorized = false;
 	$rootScope.isAdmin = false;
 
+	//changing content depending on user click
+	/*
+		$rootScope.isStatBtn = false;
+		$rootScope.isUsersBtn = false;
+	*/
 
 	// Check if user authorizeted 
 	$http.get('http://127.0.0.1:8080/checkAuthorization').then(function(response) {
@@ -26,12 +31,12 @@ app.directive('ngAuthMenu', function() {
 	    	if (response.data["isAuthorized"] == true) // user authorized
 	    	{
 				$rootScope.isAuthorized = true;    		
-				console.log("Login user session: ", response.data["loginName"]);
-				if (response.data["loginName"] == "admin") // user logged
+				console.log("Login user session: ", response.data["username"]);
+				if (response.data["username"] == "admin") // user logged
 	    		{
 					$rootScope.isAdmin = true;   					
 	    		}
-	    		if (response.data["loginName"] != "admin") // if not admin
+	    		if (response.data["username"] != "admin") // if not admin
 	    		{
 					$rootScope.isAdmin = false; 					
 	    		}

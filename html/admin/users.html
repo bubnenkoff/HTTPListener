@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Statistic</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
+		<script src="http://cdn.zingchart.com/angular/zingchart-angularjs.js"></script>
+		<script src="http://cdn.zingchart.com/zingchart.min.js"></script>
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="../js/angular-slider.js"></script>
+		<script type="text/javascript" src="../js/app.js"></script>
+		<script type="text/javascript" src="../js/statistic.js"></script>
+	    <script type="text/javascript" src="../js/questions.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../css/common.css">
+		<meta charset="utf-8">
+
+	</head>
+<body ng-app="myApp">
+	
+	<!-- <div class="col-lg-12"><img src="imgs/top1.jpg"></div> -->
+	<div ng-controller="StatisticCtrl">
+		
+		<div style="text-align: center;">
+			<div class="mycontainer">
+				<div class="center-block">
+					<div class="row">
+						<div class="col-sm-12"><img src="../imgs/top1.jpg"></div>
+						<div class="row">
+							<div class="pull-right"><div class="navbar-text">
+	         
+				               <div ng-show="!showLoginBar"> <!-- if we are not logined -->
+				                   <form class="form-inline">
+				                      <a href="/"><button type="button" class="btn btn-default pull-left" style="margin-right: 50px;">На главную</button></a>
+				                      <button type="submit" class="btn btn-danger" ng-click="sendLogout()">Выйти</button>
+				                  </form>
+				              </div>   
+
+							</div></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1">
+							<ol>
+								 <button type="submit" class="btn btn-danger" ng-click="chart1()">Организации</button>
+								 <button type="submit" class="btn btn-danger" ng-click="chart2()">Область применения</button>
+								 <button type="submit" class="btn btn-danger" ng-click="chart3()">Площадь</button>
+							</ol>
+						</div>
+						<div class="col-sm-11">
+							 <div style="max-width:1200px; margin: auto;">
+     							<h3>Количество организаций по типу</h3>
+								<div id ='chartDiv1'></div>
+
+								<h3>Область использования данных ДЗЗ</h3>
+								<div id ='chartDiv2'></div>		
+								
+								<h3>Площадь заказанных территорий (min,max)</h3>
+								<div id ='chartDiv3'></div>		
+
+							 </div>
+
+
+							 </div>
+							
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+
+<!-- 	<div ng-controller="StatisticCtrl">
+		<div class="mycontainer">
+			<header class="logo">
+				<img src="imgs/top1.jpg">
+			</header>
+			<div class="container" >
+				<div id ='chartDiv'></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="second">
+		<div class="footer">
+			<img src="imgs/bottom.jpg">
+
+		</div>
+	</div>
+
+
+
+</body>
+</html>

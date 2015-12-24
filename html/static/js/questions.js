@@ -39,6 +39,9 @@ app.controller("TestQuestions", function($scope, $http) {
   $http.get('js/questions-content.json').then(function(response) {
     $scope.questions = response.data;
     // console.log(response.data);
+          console.log("------answer-result-end-----1--");
+        console.log($scope.questions);
+      console.log("------answer-result-end-----1--");
 
   });
   //console.log($scope.questions);
@@ -202,14 +205,17 @@ app.controller("TestQuestions", function($scope, $http) {
       // При нажатии кнопки мы отправляем JSON на урл:
       $http({
           method: 'POST',
-          url: 'http://127.0.0.1:8080/my',
-          data: total_result_all
+          url: 'http://127.0.0.1:8080/stat',
+           data: total_result_all // just result QIDs and AIDs
+          // data: $scope.questions
         })
         .success(function(data) {})
 
       total_result_all.push(area_string);
 
-      console.log(answers_result);
+      console.log("------answer-result-end-------");
+        console.log($scope.questions);
+      console.log("------answer-result-end-------");
       // console.log("ansnsnssn: ", $scope.textboxValue_1);
 
     }
